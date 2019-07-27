@@ -1,13 +1,13 @@
 from PIL import Image
 import numpy as np
 
-def load_image(infilename):
+def image_load(infilename):
     img = Image.open(infilename)
     img.load()
     data = np.asarray(img, dtype="int32")
     return data
 
-def save_image(npdata, outfilename) :
+def image_save(npdata, outfilename) :
     img = Image.fromarray(np.asarray(np.clip(npdata,0,255), dtype="uint8"), "RGB")
     img.save(outfilename)
 
@@ -17,10 +17,10 @@ def make_binary(img_a):
         img_bin.append([])
         for j in range(len(img_a[i])):
             t = [np.binary_repr(k, width=8) for k in img_a[i][j]]
-        img_bin[i].append(t)
+            img_bin[i].append(t)
     return img_bin
 
-def create_image(img):
+def image_create(img):
     img_new = []
     for i in range(len(img)):
         img_new.append([])
@@ -39,16 +39,20 @@ def encode(img, data):
             t = img[i][j]
             # print(t)
             if data_c < len(data):
-                print(data[data_c], int(data[data_c], 2), chr(int(data[data_c], 2)))
-                t[0] = t[0][0:-3] + data[data_c][0:3]
-                t[1] = t[1][0:-3] + data[data_c][3:6]
-                t[2] = t[2][0:-2] + data[data_c][6:8]
-                data_c += 1
                 # print(t)
+                # print(data[data_c], int(data[data_c], 2), chr(int(data[data_c], 2)))
+                t[0] = t[0][:-3] + data[data_c][0:3]
+                t[1] = t[1][:-3] + data[data_c][3:6]
+                t[2] = t[2][:-2] + data[data_c][6:8]
+                # print(data[data_c][0:3], data[data_c][3:6], data[data_c][6:8])
+                # print(t)
+                # print('-'*50)
+                data_c += 1
             elif data_c == len(data):
                 t[0] = t[0][0:-3] + '111'
                 t[1] = t[1][0:-3] + '111'
                 t[2] = t[2][0:-2] + '11'
+                data_c += 1
 
             img_new[i].append(t)
     return img_new
@@ -59,23 +63,40 @@ def decode(img):
         for j in range(len(img[i])):
             t = [np.binary_repr(k, width=8) for k in img[i][j]]
             d = t[0][-3:] + t[1][-3:] + t[2][-2:]
+            if d == '11111111':
+                break
             e = int(d, 2)
             f = chr(e)
             data += f
-            print(d, e, f)
+            # print(t)
+            # print(t[0][-3:], t[1][-3:], t[2][-2:])
+            # print(d, e, f)
+            # print('*'*50)
     return data
 
 
-original = load_image("./images/interpreter-symbol-small.jpg")
-i = make_binary(original)
+original = image_load('./images/interpreter-symbol-small.jpg')
+img_bin = make_binary(original)
 
 # data = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
 data = "lets make some dummy data"
 data_binary = [np.binary_repr(ord(i), width=8) for i in data]
 
-img_encoded = create_image(encode(i, data_binary))
+# img_encoded = image_create(encode(img_bin, data_binary))
+img_encoded = encode(img_bin, data_binary)
+img_crt = image_create(img_encoded)
+image_save(img_crt, './images/output.jpg')
+img_ip = image_load('./images/output.jpg')
 
-save_image(img_encoded, 'new.jpg')
+i=0
+j=0
 
-data_decoded = decode(load_image("new.jpg"))
+print(original[i][j])
+print([np.binary_repr(i, width=8) for i in original[i][j]])
+print(img_encoded[i][j])
+print(np.asarray(img_crt[i][j]))
+print(img_ip[i][j])
+
+# data_decoded = decode(image_load('./images/output-new.jpg'))
+data_decoded = decode(img_ip)
 print(data_decoded)
