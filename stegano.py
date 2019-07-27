@@ -95,6 +95,9 @@ data_binary = [np.binary_repr(ord(i), width=8) for i in data]
 # img_encoded = image_create(encode(img_bin, data_binary))
 img_encoded = encode(img_bin, data_binary)
 img_crt = image_create(img_encoded)
+# saving image as png image is recommended option as its lossless
+# saving as jpeg is lossy thus saving and reading from jepg file may result
+# in incorrect decoding and excess loop execution
 image_save(img_crt, './images/output.png')
 img_ip = image_load('./images/output.png')
 
