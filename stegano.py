@@ -11,17 +11,23 @@ def save_image(npdata, outfilename) :
     img = Image.fromarray(np.asarray(np.clip(npdata,0,255), dtype="uint8"), "RGB")
     img.save(outfilename)
 
-
 def make_binary(img_a):
     img_bin = []
-
     for i in range(len(img_a)):
         img_bin.append([])
         for j in range(len(img_a[i])):
             t = [np.binary_repr(k, width=8) for k in img_a[i][j]]
         img_bin[i].append(t)
-
     return img_bin
+
+def create_image(img):
+    img_new = []
+    for i in range(len(img)):
+        img_new.append([])
+        for j in range(len(img[i])):
+            t = [int(k, 2) for k in img[i][j]]
+            img_new[i].append(t)
+    return img_new
 
 def encode(img, data):
     img_new = []
@@ -39,23 +45,16 @@ def encode(img, data):
                 t[2] = t[2][0:-2] + data[data_c][6:8]
                 data_c += 1
                 # print(t)
+            elif data_c == len(data):
+                t[0] = t[0][0:-3] + '111'
+                t[1] = t[1][0:-3] + '111'
+                t[2] = t[2][0:-2] + '11'
 
-            img_new[i].append(t)
-    return img_new
-
-def create_image(img):
-    img_new = []
-
-    for i in range(len(img)):
-        img_new.append([])
-        for j in range(len(img[i])):
-            t = [int(k, 2) for k in img[i][j]]
             img_new[i].append(t)
     return img_new
 
 def decode(img):
     data = ''
-
     for i in range(len(img)):
         for j in range(len(img[i])):
             t = [np.binary_repr(k, width=8) for k in img[i][j]]
@@ -64,7 +63,6 @@ def decode(img):
             f = chr(e)
             data += f
             print(d, e, f)
-
     return data
 
 
