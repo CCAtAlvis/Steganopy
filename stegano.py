@@ -11,7 +11,6 @@ def save_image(npdata, outfilename) :
     img = Image.fromarray(np.asarray(np.clip(npdata,0,255), dtype="uint8"), "RGB")
     img.save(outfilename)
 
-original = load_image("./images/interpreter-symbol-small.jpg")
 
 def make_binary(img_a):
     img_bin = []
@@ -23,12 +22,6 @@ def make_binary(img_a):
         img_bin[i].append(t)
 
     return img_bin
-
-i = make_binary(original)
-
-# data = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
-data = "lets make some dummy data"
-data_binary = [np.binary_repr(ord(i), width=8) for i in data]
 
 def encode(img, data):
     img_new = []
@@ -60,10 +53,6 @@ def create_image(img):
             img_new[i].append(t)
     return img_new
 
-img_encoded = create_image(encode(i, data_binary))
-
-save_image(img_encoded, 'new.jpg')
-
 def decode(img):
     data = ''
 
@@ -77,6 +66,18 @@ def decode(img):
             print(d, e, f)
 
     return data
+
+
+original = load_image("./images/interpreter-symbol-small.jpg")
+i = make_binary(original)
+
+# data = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
+data = "lets make some dummy data"
+data_binary = [np.binary_repr(ord(i), width=8) for i in data]
+
+img_encoded = create_image(encode(i, data_binary))
+
+save_image(img_encoded, 'new.jpg')
 
 data_decoded = decode(load_image("new.jpg"))
 print(data_decoded)
