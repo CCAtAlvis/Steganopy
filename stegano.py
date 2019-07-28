@@ -65,8 +65,7 @@ def decode(img):
             t = [np.binary_repr(k, width=8) for k in img[i][j]]
             d = t[0][-3:] + t[1][-3:] + t[2][-2:]
             if d == '11111111':
-                brk_f = True
-                break
+                return data
             e = int(d, 2)
             f = chr(e)
             data += f
@@ -74,8 +73,6 @@ def decode(img):
             # print(t[0][-3:], t[1][-3:], t[2][-2:])
             # print(d, e, f)
             # print('*'*50)
-        if brk_f:
-            break
     return data
 
 
