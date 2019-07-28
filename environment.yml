@@ -1,0 +1,7 @@
+name: stegano
+channels:
+  - defaults
+dependencies:
+  - python=3.*
+  - numpy
+  - pillow
