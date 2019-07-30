@@ -59,7 +59,6 @@ def encode(img, data):
 
 def decode(img):
     data = ''
-    brk_f = False
     for i in range(len(img)):
         for j in range(len(img[i])):
             t = [np.binary_repr(k, width=8) for k in img[i][j]]
