@@ -1,30 +1,56 @@
-import heapq
-from collections import defaultdict
-
-def encode(freq):
-    heap = [[weight, [symbol, '']] for symbol, weight in freq.items()]
-    heapq.heapify(heap)
-    while len(heap) > 1:
-        lo = heapq.heappop(heap)
-        hi = heapq.heappop(heap)
-        for pair in lo[1:]:
-            pair[1] = '0' + pair[1]
-        for pair in hi[1:]:
-            pair[1] = '1' + pair[1]
-        heapq.heappush(heap, [lo[0] + hi[0]] + lo[1:] + hi[1:])
-    return sorted(heapq.heappop(heap)[1:], key=lambda p: (len(p[-1]), p))
-
 data = "Lorem Ipsum is simply dummy text of the printing and typesetting industry."
-frequency = defaultdict(int)
+size = len(data) * 8
+print("Initial data size: {} bits\n".format(size))
 
+frequency = []
+characters = []
 for symbol in data:
-    frequency[symbol] += 1
+    if symbol not in frequency:
+        frequency.append(data.count(symbol))
+        frequency.append(symbol)
+        characters.append(symbol)
 
-huff = encode(frequency)
-enc_data = []
+nodes = []
+while len(frequency) > 0:
+    nodes.append(frequency[0:2])
+    frequency = frequency[2:]
 
-for symbol in data:
-    for i in range(len(huff)):
-        if huff[i][0] == symbol:
-            enc_data.append(huff[i][1])
-print(enc_data)
+nodes.sort()
+huff = []
+huff.append(nodes)
+
+def huffman_tree(nodes):
+    pos = 0
+    newnode = []
+    if len(nodes) > 1:
+        nodes.sort()
+        nodes[pos].append("0")
+        nodes[pos+1].append("1")
+        combined_node1 = nodes[pos][0] + nodes[pos+1][0]
+        combined_node2 = nodes[pos][1] + nodes[pos+1][1]
+        newnode.append(combined_node1)
+        newnode.append(combined_node2)
+        newnodes = []
+        newnodes.append(newnode)
+        newnodes = newnodes + nodes[2:]
+        nodes = newnodes
+        huff.append(nodes)
+        huffman_tree(nodes)
+    return huff
+
+newnodes = huffman_tree(nodes)
+
+huff.sort(reverse=True)
+
+checklist = []
+for level in huff:
+    for node in level:
+        if node not in checklist:
+            checklist.append(node)
+        else:
+            level.remove(node)
+
+count = 0
+for level in huff:
+    print("Level", count, ":", level)
+    count += 1
