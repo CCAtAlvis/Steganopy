@@ -70,17 +70,35 @@ def encode(characters, checklist, data):
             char_code = [char, charcode]
             char_bin.append(char_code)
 
-    for item in char_bin:
-        print(item[0], item[1])
-
     bitstring = ""
     for char in data:
         for item in char_bin:
             if char in item:
                 bitstring += item[1]
-    return bitstring
+    return bitstring, char_bin
 
-encoded_data = encode(characters, checklist, data)
+encoded_data, character_binary = encode(characters, checklist, data)
+
+for item in character_binary:
+    print(item[0], item[1])
 
 print("\nEncoded Data: {}\n".format(encoded_data))
 print("Compressed data size: {} bits\n".format(len(encoded_data)))
+
+def decode(enc_data, character_binary):
+    uncompressed_data = ""
+    code = ""
+    for bit in enc_data:
+        code += bit
+        pos = 0
+        for item in character_binary:
+            if code == item[1]:
+                uncompressed_data += character_binary[pos][0]
+                code = ""
+            pos += 1
+    return uncompressed_data
+
+decoded_data = decode(encoded_data, character_binary)
+
+print("Original data:", decoded_data)
+print("Original data size: {} bits".format(len(decoded_data) * 8))
