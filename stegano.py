@@ -1,4 +1,7 @@
 from PIL import Image
+import zlib
+import array
+
 import numpy as np
 
 def image_load(infilename):
@@ -86,7 +89,10 @@ leap into electronic typesetting, remaining essentially unchanged. It was popula
 with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop
 publishing software like Aldus PageMaker including versions of Lorem Ipsum."""
 # data = "lets make some dummy data"
-data_binary = [np.binary_repr(ord(i), width=8) for i in data]
+
+data_binary = bytes(data, 'utf-8')
+data_binary_compressed = zlib.compress(data_binary, 9)
+data_binary = ["{0:08b}".format(i) for i in data_binary_compressed]
 
 # img_encoded = image_create(encode(img_bin, data_binary))
 img_encoded = encode(img_bin, data_binary)
@@ -108,4 +114,9 @@ j=0
 
 # data_decoded = decode(image_load('./images/output-new.jpg'))
 data_decoded = decode(img_ip)
+data_decoded = [int(i,2) for i in data_decoded]
+# print(dc)
+
+data_decoded = array.array('B', data_decoded).tostring()
+data_decoded_unompressed = zlib.decompress(data_decoded)
 print(data_decoded)
