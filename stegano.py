@@ -1,6 +1,9 @@
 from PIL import Image
 import numpy as np
 
+from huffman import huffman
+from huffman import huff_decode
+
 def image_load(infilename):
     img = Image.open(infilename)
     img.load()
@@ -31,28 +34,29 @@ def image_create(img):
 
 def encode(img, data):
     img_new = []
-    data_c = 0
+    # data_c = 0
+    k = 0
 
     for i in range(len(img)):
         img_new.append([])
         for j in range(len(img[i])):
             t = img[i][j]
-            # print(t)
-            if data_c < len(data):
+            if k < len(data):
                 # print(t)
                 # print(data[data_c], int(data[data_c], 2), chr(int(data[data_c], 2)))
-                t[0] = t[0][:-3] + data[data_c][0:3]
-                t[1] = t[1][:-3] + data[data_c][3:6]
-                t[2] = t[2][:-2] + data[data_c][6:8]
+                t[0] = t[0][:-3] + data[k+0:k+3]
+                t[1] = t[1][:-3] + data[k+3:k+6]
+                t[2] = t[2][:-3] + data[k+6:k+9]
                 # print(data[data_c][0:3], data[data_c][3:6], data[data_c][6:8])
                 # print(t)
                 # print('-'*50)
-                data_c += 1
-            elif data_c == len(data):
-                t[0] = t[0][0:-3] + '111'
-                t[1] = t[1][0:-3] + '111'
-                t[2] = t[2][0:-2] + '11'
-                data_c += 1
+                # data_c += 1
+                k += 9
+            elif k == len(data):
+                t[0] = t[0][0:-4] + '1111'
+                t[1] = t[1][0:-4] + '1111'
+                t[2] = t[2][0:-4] + '1111'
+                k += 1
 
             img_new[i].append(t)
     return img_new
@@ -61,13 +65,16 @@ def decode(img):
     data = ''
     for i in range(len(img)):
         for j in range(len(img[i])):
+            t = img[i][j]
             t = [np.binary_repr(k, width=8) for k in img[i][j]]
-            d = t[0][-3:] + t[1][-3:] + t[2][-2:]
-            if d == '11111111':
+            last = t[0][-4:] + t[1][-4:] + t[2][-4:]
+            if last == '111111111111':
                 return data
-            e = int(d, 2)
-            f = chr(e)
-            data += f
+            d = t[0][-3:] + t[1][-3:] + t[2][-3:]
+            data += d
+            # e = int(d, 2)
+            # f = chr(e)
+            # data += f
             # print(t)
             # print(t[0][-3:], t[1][-3:], t[2][-2:])
             # print(d, e, f)
@@ -86,7 +93,13 @@ leap into electronic typesetting, remaining essentially unchanged. It was popula
 with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop
 publishing software like Aldus PageMaker including versions of Lorem Ipsum."""
 # data = "lets make some dummy data"
-data_binary = [np.binary_repr(ord(i), width=8) for i in data]
+
+# data_binary = [np.binary_repr(ord(i), width=8) for i in data]
+data_binary, char_binary = huffman(data)
+padding = 9 - (len(data_binary) % 9)
+for i in range(padding):
+    data_binary += '0'
+# print(len(data_binary))
 
 # img_encoded = image_create(encode(img_bin, data_binary))
 img_encoded = encode(img_bin, data_binary)
@@ -97,8 +110,8 @@ img_crt = image_create(img_encoded)
 image_save(img_crt, './images/output.png')
 img_ip = image_load('./images/output.png')
 
-i=0
-j=0
+# i=0
+# j=0
 
 # print(original[i][j])
 # print([np.binary_repr(i, width=8) for i in original[i][j]])
@@ -108,4 +121,7 @@ j=0
 
 # data_decoded = decode(image_load('./images/output-new.jpg'))
 data_decoded = decode(img_ip)
-print(data_decoded)
+data_decoded = data_decoded[:-padding]
+uncompressed_data = huff_decode(data_decoded, char_binary)
+print("Decoded data:", uncompressed_data)
+print("\nDecoded data size: {} Kb".format((len(uncompressed_data) * 8) / 1000))
